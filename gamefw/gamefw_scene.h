@@ -2,13 +2,16 @@
 
 #include <entt/entt.hpp>
 #include <memory>
+#include <mutex>
 #include "gamefw_cond_wait_thread.h"
 
 namespace gamefw
 {
 	class Scene : public std::enable_shared_from_this<Scene>
 	{
-	private:
+		friend class SceneManager;
+	protected:
+		std::mutex registry_mutex_;
 		entt::DefaultRegistry registry_;
 
 	public:
@@ -17,8 +20,10 @@ namespace gamefw
 		virtual void Render() = 0;
 		virtual void Uninitialize() = 0;
 
+		virtual bool FadeIn() { return true; }
+		virtual bool FadeOut() { return true; }
+
 		void DestroyObjects();
-		std::shared_ptr<Scene> SceneChangeCheck();
 	};
 
 	class SceneManager : public std::enable_shared_from_this<SceneManager>
@@ -26,35 +31,30 @@ namespace gamefw
 	private:
 		std::shared_ptr<Scene> current_;
 		std::shared_ptr<Scene> waiting_;
+		std::shared_ptr<Scene> loading_scene_;
 		cond_wait_thread load_thread_;
-
-		std::thread load_thread_;
+		bool is_load_;
 
 	public:
 		SceneManager();
 		~SceneManager();
-		void Initialize(Scene* scene);
+		void Initialize(Scene* scene, Scene* loading_scene);
 		void Initialize();
 		void Update();
 		void Uninitialize();
-		
-		//îÒìØä˙ÉçÅ[Éh
-		void AsyncLoadStart();
+
+		void SceneChangeCheck(std::shared_ptr<Scene>& current_scene);
+		void SceneLoadCheck();
+		void SceneChange();
 	};
 
-	struct SceneChange
+	struct NextScene
 	{
 		std::shared_ptr<Scene> next;
 
-		static std::shared_ptr<Scene> GetNextScene(entt::DefaultRegistry& registry)
-		{
-			auto view = registry.view<SceneChange>();
-			for (const auto entity : view)
-			{
-				return view.get(entity).next;
-			}
+		NextScene() {}
+		NextScene(std::shared_ptr<Scene> next_scene) : next(next_scene) {}
 
-			return nullptr;
-		}
+		virtual ~NextScene() {}
 	};
 }

@@ -8,7 +8,7 @@ gamefw::Engine::~Engine()
 {
 }
 
-void gamefw::Engine::Update()
+void gamefw::Engine::Run()
 {
 	while (window_->ProcessMessage())
 	{

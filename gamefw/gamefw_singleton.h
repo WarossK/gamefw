@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <stdexcept>
+#include "gamefw_exception.h"
 
 namespace gamefw
 {
@@ -13,7 +13,7 @@ namespace gamefw
 		singleton_base()
 		{
 			auto& ptr = get();
-			if (ptr) throw std::runtime_error("you tried duplication singleton class.");
+			if (ptr) GAMEFW_THROW_EXCEPTION("you tried singleton class duplication.");
 
 			ptr.reset(static_cast<DerivedClass*>(this));
 		}

@@ -18,25 +18,24 @@ namespace gamefw
 		std::mutex queue_mutex_;
 		std::condition_variable condition_;
 		bool is_stop_;
-		bool is_wait_;
+		bool is_complete_;
 
 	public:
 		cond_wait_thread() :
 			is_stop_(false)
 		{
-			is_wait_ = false;
+			is_complete_ = false;
 			thread_.reset(new std::thread([&]
 			{
-				bool& is_wait = is_wait_;
 				while (true)
 				{
 					std::function<void()> task;
 
 					{
-						std::unique_lock<std::mutex> lock(queue_mutex_);
-						is_wait = true;
+						std::unique_lock lock(queue_mutex_);
+						is_complete_ = true;
 						condition_.wait(lock, [&] { return is_stop_ || !task_queue_.empty(); });
-						is_wait = false;
+						is_complete_ = false;
 
 						if (is_stop_ && task_queue_.empty()) return;
 
@@ -53,7 +52,7 @@ namespace gamefw
 		~cond_wait_thread()
 		{
 			{
-				std::unique_lock<std::mutex> lock(queue_mutex_);
+				std::unique_lock lock(queue_mutex_);
 				is_stop_ = true;
 			}
 
@@ -62,7 +61,7 @@ namespace gamefw
 		}
 
 		template<class F, class... Args>
-		auto Enqueue(F&& f, Args&&... args) -> std::future<typename std::invoke_result <F, Args...>::type>
+		auto enqueue(F&& f, Args&&... args) -> std::future<typename std::invoke_result <F, Args...>::type>
 		{
 			using return_type = typename std::result_of<F(Args...)>::type;
 
@@ -74,7 +73,7 @@ namespace gamefw
 			std::future<return_type> result = task->get_future();
 
 			{
-				std::unique_lock<std::mutex> lock(queue_mutex_);
+				std::unique_lock lock(queue_mutex_);
 
 				if (is_stop_) throw std::runtime_error("enqueue on stopped thread.");
 
@@ -85,15 +84,10 @@ namespace gamefw
 			return result;
 		}
 
-		void WaitProcess()
+		bool is_complete_process()
 		{
-			while (!IsProcessComplete());
-		}
-
-		bool IsProcessComplete()
-		{
-			std::unique_lock<std::mutex> lock(queue_mutex_);
-			return is_wait_;
+			std::unique_lock lock(queue_mutex_);
+			return is_complete_;
 		}
 	};
 }
