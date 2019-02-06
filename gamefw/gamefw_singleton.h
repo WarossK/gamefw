@@ -24,7 +24,7 @@ namespace gamefw
 			ptr.release();
 		}
 
-		inline static const std::unique_ptr<DerivedClass>& get_instance()
+		static const std::unique_ptr<DerivedClass>& get_instance()
 		{
 			return get();
 		}

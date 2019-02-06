@@ -1,21 +1,20 @@
 #pragma once
 
-#define NOMINMAX
 #include <memory>
 #include "gamefw_window.h"
 #include "gamefw_scene.h"
 
 namespace gamefw
 {
-	class Engine : public singleton_base<Engine>
+	class Engine final : public singleton_base<Engine>
 	{
 	private:
 		std::unique_ptr<Window> window_;
 		std::shared_ptr<SceneManager> scene_manager_;
 
 	public:
-		Engine();
-		~Engine();
+		Engine() {}
+		~Engine() {}
 
 		template<class InitialScene, class LoadingScene>
 		void Initialize(uint32_t width, uint32_t height, std::string app_name)
@@ -31,7 +30,18 @@ namespace gamefw
 #endif
 		}
 
-		void Run();
-		void Uninitialize();
+		void Run()
+		{
+			while (window_->ProcessMessage())
+			{
+				scene_manager_->Update();
+			}
+		}
+
+		void Uninitialize()
+		{
+			scene_manager_->Uninitialize();
+			window_->Uninitialize();
+		}
 	};
 }

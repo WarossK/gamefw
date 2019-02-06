@@ -130,6 +130,10 @@
       <Project>{dc8a44af-e227-4296-9668-9865c053a03d}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="component_types.h" />
+    <ClInclude Include="game_object_types.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

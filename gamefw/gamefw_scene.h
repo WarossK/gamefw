@@ -4,6 +4,8 @@
 #include <memory>
 #include <mutex>
 #include "gamefw_cond_wait_thread.h"
+#include "gamefw_singleton.h"
+#include "gamefw_define.h"
 
 namespace gamefw
 {
@@ -12,9 +14,12 @@ namespace gamefw
 		friend class SceneManager;
 	protected:
 		std::mutex registry_mutex_;
-		entt::DefaultRegistry registry_;
+		Registry registry_;
 
 	public:
+		Scene() {}
+		virtual ~Scene() {}
+
 		virtual void Initialize() = 0;
 		virtual void Update() = 0;
 		virtual void Render() = 0;
@@ -26,7 +31,7 @@ namespace gamefw
 		void DestroyObjects();
 	};
 
-	class SceneManager : public std::enable_shared_from_this<SceneManager>
+	class SceneManager : public singleton_base<SceneManager>
 	{
 	private:
 		std::shared_ptr<Scene> current_;

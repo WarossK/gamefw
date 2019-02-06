@@ -48,7 +48,7 @@ void gamefw::SceneManager::Uninitialize()
 	current_->Uninitialize();
 	loading_scene_->Uninitialize();
 
-	if(waiting_) waiting_->Uninitialize();
+	if (waiting_) waiting_->Uninitialize();
 }
 
 void gamefw::Scene::DestroyObjects()
@@ -62,7 +62,7 @@ void gamefw::SceneManager::SceneChangeCheck(std::shared_ptr<Scene>& current_scen
 	auto& registry = current_scene->registry_;
 	auto view = registry.view<NextScene>();
 
-	for (const auto entity : view)
+	for (auto entity : view)
 	{
 		next = view.get(entity).next;
 		registry.remove<NextScene>(entity);
@@ -74,7 +74,9 @@ void gamefw::SceneManager::SceneChangeCheck(std::shared_ptr<Scene>& current_scen
 		load_thread_.enqueue([](const std::shared_ptr<Scene>& next)
 		{
 			next->Initialize();
-		}, next);
+			using namespace std::chrono_literals;
+			std::this_thread::sleep_for(1s);
+		}, waiting_);
 		is_load_ = true;
 	}
 }
@@ -83,8 +85,8 @@ void gamefw::SceneManager::SceneLoadCheck()
 {
 	if (load_thread_.is_complete_process())
 	{
-		is_load_ = false;
 		SceneChange();
+		is_load_ = false;
 	}
 }
 

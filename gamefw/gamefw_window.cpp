@@ -27,6 +27,9 @@ gamefw::Window::~Window()
 
 void gamefw::Window::Initialize(uint32_t width, uint32_t height, std::string app_name)
 {
+#if defined(GAMEFW_NO_CONSOLE_WINDOW)
+	HANDLE console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+#endif
 	WNDCLASSEX window_class;
 
 	app_name_ = app_name;
@@ -49,7 +52,7 @@ void gamefw::Window::Initialize(uint32_t width, uint32_t height, std::string app
 
 	if (!RegisterClassEx(&window_class))
 	{
-		GAMEFW_THROW_EXCEPTION("RegisterClassEx() failed.", "Window Initialize failed.");
+		GAMEFW_THROW_EXCEPTION("window register failed.");
 	}
 
 	int window_style = WS_OVERLAPPEDWINDOW ^ (WS_MAXIMIZEBOX | WS_THICKFRAME);
@@ -78,7 +81,7 @@ void gamefw::Window::Initialize(uint32_t width, uint32_t height, std::string app
 	if (!window_handle)
 	{
 		PostQuitMessage(0);
-		GAMEFW_THROW_EXCEPTION("CreateWindowEx() failure.", "Window Initialize failure.");
+		GAMEFW_THROW_EXCEPTION("window create failure.");
 	}
 
 	ShowWindow(window_handle, SW_SHOW);

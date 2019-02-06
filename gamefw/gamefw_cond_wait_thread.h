@@ -23,8 +23,9 @@ namespace gamefw
 	public:
 		cond_wait_thread() :
 			is_stop_(false)
+			,is_complete_(true)
 		{
-			is_complete_ = false;
+		
 			thread_.reset(new std::thread([&]
 			{
 				while (true)
@@ -87,7 +88,7 @@ namespace gamefw
 		bool is_complete_process()
 		{
 			std::unique_lock lock(queue_mutex_);
-			return is_complete_;
+			return is_complete_ && task_queue_.empty();
 		}
 	};
 }

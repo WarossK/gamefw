@@ -1,23 +1,25 @@
+#include <iostream>
 #define GAMEFW_GRAPHIC_API_NULL
 #include "../gamefw/gamefw_engine.h"
 #include "../gamefw/gamefw_game_object.h"
-#include <iostream>
+#include "../gamefw/gamefw_random.h"
+#include "game_object_types.h"
 
-template<class...Args>
+//#define GAMEFW_NO_CONSOLE_WINDOW
+
+template<class... Args>
 void log(Args... args)
 {
 	(std::cout << ... << args) << std::endl;
 }
 
-using SceneChangeManager = gamefw::GameObject<gamefw::NextScene>;
-
 struct next_scene : public gamefw::Scene
 {
-	gamefw::entity_type entity;
+	SceneChangeManager scene_change_manager;
 
 	void Initialize()
 	{
-		entity = SceneChangeManager::Create(registry_);
+		scene_change_manager = SceneChangeManager::Create(registry_);
 		log("next_scene", " : ", "initialize.");
 	}
 
@@ -36,19 +38,22 @@ struct next_scene : public gamefw::Scene
 
 struct test_scene : public gamefw::Scene
 {
-	gamefw::entity_type entity;
+	SceneChangeManager scene_change_manager;
 
 	void Initialize()
 	{
-		entity = SceneChangeManager::Create(registry_);
+		gamefw::high_speed_random rand;
+		scene_change_manager = SceneChangeManager::Create(registry_);
+		Player::Create(registry_, PlayerScript{ rand(0.01f, 0.1f), rand(0.01f, 0.1f), rand(0.01f, 0.1f) });
+		Enemy::Create(registry_, EnemyScript{ gamefw::high_speed_random(), rand(0.01f, 0.1f), rand(0.01f, 0.1f), rand(0.01f, 0.1f) });
 		log("test_scene", " : ", "initialize.");
 	}
 
 	void Update()
 	{
-		if (GetKeyState(VK_SPACE) & 0x80)
+		if (GetAsyncKeyState(VK_SPACE) & 0x8000)
 		{
-			SceneChangeManager::AddComponent<gamefw::NextScene>(entity, registry_, std::make_shared<next_scene>());
+			SceneChangeManager::AddComponent<gamefw::NextScene>(scene_change_manager, registry_, std::make_shared<next_scene>());
 		}
 
 		log("test_scene", " : ", "update.");
@@ -90,9 +95,9 @@ struct test_load_scene : public gamefw::Scene
 
 void next_scene::Update()
 {
-	if (GetKeyState(VK_SPACE) & 0x80)
+	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
 	{
-		SceneChangeManager::AddComponents(entity, registry_, gamefw::NextScene(std::make_shared<test_scene>()));
+		SceneChangeManager::AddComponents(scene_change_manager, registry_, gamefw::NextScene(std::make_shared<test_scene>()));
 	}
 
 	log("next_scene", " : ", "update.");

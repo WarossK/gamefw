@@ -1,23 +1,38 @@
 #pragma once
 
 #include <entt/entt.hpp>
+#include "gamefw_define.h"
 
 namespace gamefw
 {
-	using entity_type = typename entt::DefaultRegistry::entity_type;
-
 	template<class... Components>
 	class GameObject
 	{
+	private:
+		entity_type entity_;
+
 	public:
-		static entity_type Create(entt::DefaultRegistry& registry, Components... components)
+		GameObject() : entity_(std::numeric_limits<entity_type>::max()) {}
+		GameObject(entity_type entity) : entity_(entity) {}
+
+		operator entity_type()
+		{
+			return entity_;
+		}
+
+		GameObject operator = (entity_type entity)
+		{
+			entity_ = entity;
+		}
+
+		static GameObject Create(Registry& registry, Components... components)
 		{
 			auto entity = registry.create();
 			Set(entity, registry, components...);
 			return entity;
 		}
 
-		static entity_type Create(entt::DefaultRegistry& registry)
+		static GameObject Create(Registry& registry)
 		{
 			auto entity = registry.create();
 			SetDefault<Components...>(entity, registry);
@@ -25,26 +40,26 @@ namespace gamefw
 		}
 
 		template<class Component, class...Args>
-		static void AddComponent(entity_type entity, entt::DefaultRegistry& registry, Args... component_args)
+		static void AddComponent(entity_type entity, Registry& registry, Args... component_args)
 		{
 			registry.assign<Component>(entity, component_args...);
 		}
 
 		template<class... Components>
-		static void AddComponents(entity_type entity, entt::DefaultRegistry& registry, Components... components)
+		static void AddComponents(entity_type entity, Registry& registry, Components... components)
 		{
 			Set(entity, registry, components...);
 		}
 
 		template<class... Components>
-		static void AddComponents(entity_type entity, entt::DefaultRegistry& registry)
+		static void AddComponents(entity_type entity, Registry& registry)
 		{
 			SetDefault<Components...>(entity, registry);
 		}
 
 	private:
 		template<class ComponentHead, class... ComponentTail>
-		static void Set(const typename entt::DefaultRegistry::entity_type& entity, entt::DefaultRegistry& registry, ComponentHead& head, ComponentTail&... tail)
+		static void Set(const entity_type& entity, Registry& registry, ComponentHead& head, ComponentTail&... tail)
 		{
 			registry.assign<ComponentHead>(entity, head);
 
@@ -54,7 +69,7 @@ namespace gamefw
 			}
 		}
 		template<class ComponentHead, class... ComponentTail>
-		static void SetDefault(const typename entt::DefaultRegistry::entity_type& entity, entt::DefaultRegistry& registry)
+		static void SetDefault(const entity_type& entity, Registry& registry)
 		{
 			registry.assign<ComponentHead>(entity, ComponentHead());
 
