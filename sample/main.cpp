@@ -5,6 +5,10 @@
 #include "../gamefw/gamefw_random.h"
 #include "game_object_types.h"
 
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
 //#define GAMEFW_NO_CONSOLE_WINDOW
 
 template<class... Args>
@@ -33,6 +37,27 @@ struct next_scene : public gamefw::Scene
 	void Uninitialize()
 	{
 		log("next_scene", " : ", "uninitialize.");
+	}
+
+	bool FadeIn()
+	{
+		log("next_scene : fadein.");
+		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	bool FadeOut()
+	{
+		log("next_scene : fadeout.");
+		if (GetAsyncKeyState(VK_UP) & 0x8000)
+		{
+			return true;
+		}
+		return false;
 	}
 };
 
@@ -67,6 +92,27 @@ struct test_scene : public gamefw::Scene
 	void Uninitialize()
 	{
 		log("test_scene", " : ", "uninitialize.");
+	}
+
+	bool FadeIn()
+	{
+		log("test_scene : fadein.");
+		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	bool FadeOut()
+	{
+		log("test_scene : fadeout.");
+		if (GetAsyncKeyState(VK_UP) & 0x8000)
+		{
+			return true;
+		}
+		return false;
 	}
 };
 
@@ -109,6 +155,8 @@ int __stdcall WinMain(HINSTANCE, HINSTANCE, LPSTR, INT)
 int main(int args, char* argv[])
 #endif
 {
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
 	auto engine = std::make_unique<gamefw::Engine>();
 
 	try
@@ -120,6 +168,5 @@ int main(int args, char* argv[])
 	catch (const std::runtime_error& re)
 	{
 		MessageBox(nullptr, re.what(), "runtime error.", MB_OK);
-		return -1;
 	}
 }

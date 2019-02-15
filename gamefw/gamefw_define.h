@@ -12,5 +12,5 @@ namespace gamefw
 	using Registry = entt::DefaultRegistry;
 #endif
 
-using entity_type = typename Registry::entity_type;
+	using entity_type = typename Registry::entity_type;
 }

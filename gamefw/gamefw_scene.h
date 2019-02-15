@@ -31,6 +31,14 @@ namespace gamefw
 		void DestroyObjects();
 	};
 
+	enum scene_state
+	{
+		UPDATE,
+		LOADING,
+		FADEIN,
+		FADEOUT
+	};
+
 	class SceneManager : public singleton_base<SceneManager>
 	{
 	private:
@@ -38,7 +46,7 @@ namespace gamefw
 		std::shared_ptr<Scene> waiting_;
 		std::shared_ptr<Scene> loading_scene_;
 		cond_wait_thread load_thread_;
-		bool is_load_;
+		scene_state state_;
 
 	public:
 		SceneManager();

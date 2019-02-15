@@ -4,7 +4,7 @@
 using namespace gamefw;
 
 gamefw::SceneManager::SceneManager() :
-	is_load_(false)
+	state_(UPDATE)
 {
 }
 
@@ -27,19 +27,40 @@ void gamefw::SceneManager::Initialize()
 
 void gamefw::SceneManager::Update()
 {
-	if (!is_load_)
+	switch (state_)
+	{
+	case UPDATE:
 	{
 		current_->Update();
 		current_->Render();
 		SceneChangeCheck(current_);
 		current_->DestroyObjects();
 	}
-	else
+	break;
+	case LOADING:
 	{
 		loading_scene_->Update();
 		loading_scene_->Render();
 		SceneLoadCheck();
 		loading_scene_->DestroyObjects();
+	}
+	break;
+	case FADEIN:
+	{
+		if (current_->FadeIn())
+		{
+			state_ = UPDATE;
+		}
+	}
+	break;
+	case FADEOUT:
+	{
+		if (current_->FadeOut())
+		{
+			state_ = LOADING;
+		}
+	}
+	break;
 	}
 }
 
@@ -77,7 +98,7 @@ void gamefw::SceneManager::SceneChangeCheck(std::shared_ptr<Scene>& current_scen
 			using namespace std::chrono_literals;
 			std::this_thread::sleep_for(1s);
 		}, waiting_);
-		is_load_ = true;
+		state_ = FADEOUT;
 	}
 }
 
@@ -86,7 +107,8 @@ void gamefw::SceneManager::SceneLoadCheck()
 	if (load_thread_.is_complete_process())
 	{
 		SceneChange();
-		is_load_ = false;
+		//current_->Render();
+		state_ = FADEIN;
 	}
 }
 

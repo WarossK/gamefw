@@ -124,6 +124,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="gamefw_cond_wait_thread.h" />
+    <ClInclude Include="gamefw_define.h" />
     <ClInclude Include="gamefw_engine.h" />
     <ClInclude Include="gamefw_exception.h" />
     <ClInclude Include="gamefw_game_object.h" />

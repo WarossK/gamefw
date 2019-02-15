@@ -68,6 +68,7 @@ namespace gamefw
 				Set(entity, registry, tail...);
 			}
 		}
+
 		template<class ComponentHead, class... ComponentTail>
 		static void SetDefault(const entity_type& entity, Registry& registry)
 		{
