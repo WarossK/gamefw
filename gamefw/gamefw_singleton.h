@@ -36,4 +36,35 @@ namespace gamefw
 			return ptr;
 		}
 	};
+
+	template<class DerivedClass>
+	class singleton_base_2
+	{
+	public:
+		singleton_base_2()
+		{
+			auto& ptr = *get();
+			if (ptr) GAMEFW_THROW_EXCEPTION("you tried singleton class duplication.");
+
+			ptr = static_cast<DerivedClass*>(this);
+		}
+
+		virtual ~singleton_base_2()
+		{
+			auto& ptr = *get();
+			ptr = nullptr;
+		}
+
+		static DerivedClass const* get_instance()
+		{
+			return *get();
+		}
+
+	private:
+		static DerivedClass** get()
+		{
+			static DerivedClass* ptr = nullptr;
+			return &ptr;
+		}
+	};
 }

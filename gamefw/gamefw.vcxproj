@@ -131,6 +131,7 @@
     <ClInclude Include="gamefw_random.h" />
     <ClInclude Include="gamefw_scene.h" />
     <ClInclude Include="gamefw_singleton.h" />
+    <ClInclude Include="gamefw_timer.h" />
     <ClInclude Include="gamefw_window.h" />
   </ItemGroup>
   <ItemGroup>

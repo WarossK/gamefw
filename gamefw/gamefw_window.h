@@ -8,7 +8,7 @@
 
 namespace gamefw
 {
-	class Window : public singleton_base<Window>
+	class Window : public singleton_base_2<Window>
 	{
 	private:
 		HWND handle_;
